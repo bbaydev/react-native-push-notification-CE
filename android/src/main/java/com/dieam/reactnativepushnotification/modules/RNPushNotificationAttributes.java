@@ -14,7 +14,7 @@ import static com.dieam.reactnativepushnotification.modules.RNPushNotification.L
 
 public class RNPushNotificationAttributes {
     private static final String ID = "id";
-    private static final String MESSAGE = "message";
+    private static final String MESSAGE = "body";
     private static final String FIRE_DATE = "fireDate";
     private static final String TITLE = "title";
     private static final String TICKER = "ticker";
@@ -170,6 +170,10 @@ public class RNPushNotificationAttributes {
         }
 
         return true;
+    }
+
+    private int getRandomNumber(int min, int max) {
+        return (int )(Math.random() * max + min);
     }
 
     public Bundle toBundle() {

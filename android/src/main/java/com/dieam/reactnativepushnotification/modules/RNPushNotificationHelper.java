@@ -130,6 +130,17 @@ public class RNPushNotificationHelper {
         }
     }
 
+    private String getLastnCharacters(String inputString, int subStringLength) {
+        int length = inputString.length();
+
+        if (length <= subStringLength) {
+            return inputString;
+        }
+
+        int startIndex = length-subStringLength;
+        return inputString.substring(startIndex);
+    }
+
     public void sendToNotificationCentre(Bundle bundle) {
         try {
             Class intentClass = getMainActivityClass();
@@ -148,6 +159,10 @@ public class RNPushNotificationHelper {
             if (notificationIdString == null) {
                 Log.e(LOG_TAG, "No notification ID specified for the notification");
                 return;
+            } else {
+                notificationIdString = getLastnCharacters(notificationIdString.replaceAll("\\D+",""), 9);
+
+                 Log.e(LOG_TAG, "Notification ID: '" + notificationIdString + "'.");
             }
 
             Resources res = context.getResources();
@@ -477,7 +492,7 @@ public class RNPushNotificationHelper {
         if (manager == null)
             return;
 
-        final CharSequence name = "Notifications";
+        final CharSequence name = "rn-push-notification-channel";
         int importance = NotificationManager.IMPORTANCE_DEFAULT;
         NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance);
         channel.enableLights(true);

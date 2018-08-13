@@ -38,6 +38,8 @@ public class RNPushNotificationListenerService extends FirebaseMessagingService 
             bundle.putString(entry.getKey(), entry.getValue());
         }
 
+        bundle.putString("message", bundle.getString("body"));
+
         JSONObject data = getPushData(bundle.getString("data"));
         if (data != null) {
             if (!bundle.containsKey("message")) {
@@ -121,12 +123,9 @@ public class RNPushNotificationListenerService extends FirebaseMessagingService 
 
         Log.v(LOG_TAG, "sendNotification: " + bundle);
 
-        String message = bundle.getString("message");
-        if ((message != null && !message.isEmpty()) || !bundle.containsKey("content-available")) {
-            Application applicationContext = (Application) context.getApplicationContext();
-            RNPushNotificationHelper pushNotificationHelper = new RNPushNotificationHelper(applicationContext);
-            pushNotificationHelper.sendToNotificationCentre(bundle);
-        }
+        Application applicationContext = (Application) context.getApplicationContext();
+        RNPushNotificationHelper pushNotificationHelper = new RNPushNotificationHelper(applicationContext);
+        pushNotificationHelper.sendToNotificationCentre(bundle);
     }
 
     private boolean isApplicationInForeground() {

@@ -9,7 +9,7 @@ This Library was cloned from the original @Zo0r/react-native-push-notification. 
 
 `react-native link`
 
-**NOTE: For Android, you will still have to manually update the AndroidManifest.xml (as below) in order to use Scheduled Notifications. Also make sure you are using compileSdkVersion 26 or above.**
+**NOTE: For Android, you will still have to manually update the AndroidManifest.xml (as below) in order to use Scheduled Notifications.**
 
 ## Issues
 
@@ -34,7 +34,7 @@ ext {
     googlePlayServicesVersion = "<Your play services version>" // default: "+"
     firebaseVersion = "<Your Firebase version>" // default: "+"
     // Other settings
-    compileSdkVersion = "<Your compile SDK version>" // default: 26
+    compileSdkVersion = "<Your compile SDK version>" // default: 23
     buildToolsVersion = "<Your build tools version>" // default: "23.0.1"
     targetSdkVersion = "<Your target SDK version>" // default: 23
     supportLibVersion = "<Your support lib version>" // default: 23.1.1
@@ -71,7 +71,12 @@ In your `AndroidManifest.xml`
         <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationPublisher" />
         <receiver android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationBootEventReceiver">
             <intent-filter>
+            <!-- <Only if you're using GCM> -->
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+            <!-- </Only if you're using GCM> -->
+            <!-- <Else> -->
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            <!-- </Else> -->
             </intent-filter>
         </receiver>
         <service android:name="com.dieam.reactnativepushnotification.modules.RNPushNotificationRegistrationService"/>
@@ -157,7 +162,7 @@ PushNotification.configure({
         sound: true
     },
 
-    // Should the initial notification be popped when appStart() gets called
+    // Should the initial notification be popped automatically
     // default: true
     popInitialNotification: true,
 
@@ -168,12 +173,6 @@ PushNotification.configure({
       */
     requestPermissions: true,
 });
-```
-
-On your root react component in the componentDidMount lifecycle make sure to call:
-
-```
-PushNotification.appStart() // Tells the bridge when the app has started so it can display tapped notifications
 ```
 
 ## Handling Notifications
