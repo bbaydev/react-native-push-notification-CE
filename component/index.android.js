@@ -12,107 +12,117 @@ var DEVICE_NOTIF_EVENT = 'remoteNotificationReceived';
 var NOTIF_REGISTER_EVENT = 'remoteNotificationsRegistered';
 var REMOTE_FETCH_EVENT = 'remoteFetch';
 
+function parseJSON(json) {
+  try {
+    return JSON.parse(json);
+  } catch(err) {
+    console.log("Failed to parse json string:", json);
+
+    return null;
+  }
+}
+
 var NotificationsComponent = function() {
 
 };
 
 NotificationsComponent.prototype.getInitialNotification = function () {
-    return RNPushNotification.getInitialNotification()
-        .then(function (notification) {
-            if (notification && notification.dataJSON) {
-                return JSON.parse(notification.dataJSON);
-            }
-            return null;
-        });
+  return RNPushNotification.getInitialNotification()
+    .then(function (notification) {
+      if (notification && notification.dataJSON) {
+        return JSON.parse(notification.dataJSON);
+      }
+      return null;
+    });
 };
 NotificationsComponent.prototype.subscribeToTopic = function(topic: string) {
-		RNPushNotification.subscribeToTopic(topic);
+  RNPushNotification.subscribeToTopic(topic);
 };
 
 NotificationsComponent.prototype.requestPermissions = function(senderID: string) {
-	RNPushNotification.requestPermissions(senderID);
+  RNPushNotification.requestPermissions(senderID);
 };
 
 NotificationsComponent.prototype.cancelLocalNotifications = function(details: Object) {
-	RNPushNotification.cancelLocalNotifications(details);
+  RNPushNotification.cancelLocalNotifications(details);
 };
 
 NotificationsComponent.prototype.cancelAllLocalNotifications = function() {
-	RNPushNotification.cancelAllLocalNotifications();
+  RNPushNotification.cancelAllLocalNotifications();
 };
 
 NotificationsComponent.prototype.presentLocalNotification = function(details: Object) {
-	RNPushNotification.presentLocalNotification(details);
+  RNPushNotification.presentLocalNotification(details);
 };
 
 NotificationsComponent.prototype.scheduleLocalNotification = function(details: Object) {
-	RNPushNotification.scheduleLocalNotification(details);
+  RNPushNotification.scheduleLocalNotification(details);
 };
 
 NotificationsComponent.prototype.setApplicationIconBadgeNumber = function(number: number) {
-       if (!RNPushNotification.setApplicationIconBadgeNumber) {
-               return;
-       }
-       RNPushNotification.setApplicationIconBadgeNumber(number);
+  if (!RNPushNotification.setApplicationIconBadgeNumber) {
+    return;
+  }
+  RNPushNotification.setApplicationIconBadgeNumber(number);
 };
 
 NotificationsComponent.prototype.abandonPermissions = function() {
-	/* Void */
+  /* Void */
 };
 
 NotificationsComponent.prototype.checkPermissions = function(callback: Function) {
-	RNPushNotification.checkPermissions().then(alert => callback({ alert }));
+  RNPushNotification.checkPermissions().then(alert => callback({ alert }));
 };
 
 NotificationsComponent.prototype.addEventListener = function(type: string, handler: Function) {
-	var listener;
-	if (type === 'notification') {
-		listener =  DeviceEventEmitter.addListener(
-			DEVICE_NOTIF_EVENT,
-			function(notifData) {
-				var data = JSON.parse(notifData.dataJSON);
-				handler(data);
-			}
-		);
-	} else if (type === 'register') {
-		listener = DeviceEventEmitter.addListener(
-			NOTIF_REGISTER_EVENT,
-			function(registrationInfo) {
-				handler(registrationInfo.deviceToken);
-			}
-		);
-	} else if (type === 'remoteFetch') {
-		listener = DeviceEventEmitter.addListener(
-			REMOTE_FETCH_EVENT,
-			function(notifData) {
-				var notificationData = JSON.parse(notifData.dataJSON)
-				handler(notificationData);
-			}
-		);
-	}
+  var listener;
+  if (type === 'notification') {
+    listener =  DeviceEventEmitter.addListener(DEVICE_NOTIF_EVENT, function(rawNotification) {
+      var notification = JSON.parse(rawNotification.dataJSON);
 
-	_notifHandlers.set(type, listener);
+      if (notification.u && typeof notification.u === "string") {
+        notification.data = {
+          u: parseJSON(notification.u)
+        };
+
+        delete notification.u;
+      }
+
+      handler(notification);
+    });
+  } else if (type === 'register') {
+    listener = DeviceEventEmitter.addListener(NOTIF_REGISTER_EVENT, function(registrationInfo) {
+			handler(registrationInfo.deviceToken);
+		});
+  } else if (type === 'remoteFetch') {
+    listener = DeviceEventEmitter.addListener(REMOTE_FETCH_EVENT, function(notifData) {
+			var notificationData = JSON.parse(notifData.dataJSON)
+			handler(notificationData);
+    });
+  }
+
+  _notifHandlers.set(type, listener);
 };
 
 NotificationsComponent.prototype.removeEventListener = function(type: string, handler: Function) {
-	var listener = _notifHandlers.get(type);
-	if (!listener) {
-		return;
-	}
-	listener.remove();
-	_notifHandlers.delete(type);
+  var listener = _notifHandlers.get(type);
+  if (!listener) {
+    return;
+  }
+  listener.remove();
+  _notifHandlers.delete(type);
 }
 
 NotificationsComponent.prototype.registerNotificationActions = function(details: Object) {
-	RNPushNotification.registerNotificationActions(details);
+  RNPushNotification.registerNotificationActions(details);
 }
 
 NotificationsComponent.prototype.clearAllNotifications = function() {
-	RNPushNotification.clearAllNotifications()
+  RNPushNotification.clearAllNotifications()
 }
 
 module.exports = {
-	state: false,
-	component: new NotificationsComponent()
+  state: false,
+  component: new NotificationsComponent()
 };
 
