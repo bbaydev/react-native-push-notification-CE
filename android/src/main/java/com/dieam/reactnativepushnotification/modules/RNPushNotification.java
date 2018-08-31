@@ -131,7 +131,7 @@ public class RNPushNotification extends ReactContextBaseJavaModule implements Ac
         Intent GCMService = new Intent(reactContext, RNPushNotificationRegistrationService.class);
 
         GCMService.putExtra("senderID", senderID);
-        reactContext.startService(GCMService);
+        RNPushNotificationRegistrationService.enqueueWork(reactContext, GCMService);
     }
     @ReactMethod
     public void subscribeToTopic(String topic) {

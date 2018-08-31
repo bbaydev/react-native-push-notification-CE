@@ -2,6 +2,7 @@ package com.dieam.reactnativepushnotification.modules;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.support.v4.app.JobIntentService;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -9,16 +10,20 @@ import com.google.android.gms.iid.InstanceID;
 
 import static com.dieam.reactnativepushnotification.modules.RNPushNotification.LOG_TAG;
 
-public class RNPushNotificationRegistrationService extends IntentService {
-
+public class RNPushNotificationRegistrationService extends JobIntentService
+{
+    static final int JOB_ID = 100521;
     private static final String TAG = "RNPushNotification";
+
+    static void enqueueWork(Context context, Intent work) {
+        enqueueWork(context, RNPushNotificationRegistrationService.class, JOB_ID, work);
+    }
 
     public RNPushNotificationRegistrationService() {
         super(TAG);
     }
-
     @Override
-    protected void onHandleIntent(Intent intent) {
+    protected void onHandleWork(Intent intent) {
         try {
             String SenderID = intent.getStringExtra("senderID");
             InstanceID instanceID = InstanceID.getInstance(this);
