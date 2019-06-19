@@ -2,7 +2,7 @@ package com.dieam.reactnativepushnotification.modules;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.support.v4.app.JobIntentService;
+import androidx.core.app.JobIntentService;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
